@@ -99,11 +99,11 @@ create table modelo_estacion
 IN/OUT/INOUT *nombre parametro* *tipo de dato*
 IN: LECTURA - OUT: ESCRITURA
 
- delimiter *MySQL es delicado y necesita explicacion sobre donde empieza y termina un procedimiento*/
+ delimiter *MySQL necesita explicacion sobre donde empieza y termina un procedimiento*/
 
 delimiter $$
 
-CREATE PROCEDURE alta_pedido (out pedido_id int, in pedido_fechaEntrega datetime,  in pedido_cons_id int)
+CREATE PROCEDURE alta_pedido (out pedido_id int, in pedido_fechaEntrega datetime, in pedido_cons_id int)
 begin
 		insert into pedido(fecha_entrega, consesionario_id)
 			values (pedido_fechaentrega, pedido_cons_id);
@@ -116,7 +116,6 @@ CREATE PROCEDURE baja_pedido (in id_pedido_p int) /*ver que el pedido no este en
 	begin
 			delete from pedido
             where id_pedido = id_pedido_p;
-
     end;	$$
 
 delimiter $$
@@ -128,73 +127,89 @@ begin
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE alta_pedido_detalle()
+CREATE PROCEDURE alta_pedido_detalle(out pedido_detalle_id int, in id_pedido_p int, out id_matricula_chasis_mc int)
 begin
-
+		insert into pedido_detalle (pedido_id, matricula_chasis_id)
+				values (id_pedido_p, id_matricula_chasis_mc);
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE baja_pedido_detalle()
+CREATE PROCEDURE baja_pedido_detalle(in pedido_detalle_id int)
 begin
-
+		delete from pedido_detalle
+        where id_pedido_detalle = pedido_detalle_id;
 end;	$$
 	
 delimiter $$
-CREATE PROCEDURE modificar_pedido_detalle()
+CREATE PROCEDURE modificar_pedido_detalle(in pedido_detalle_id int, in new_id_pedido int, out new_id_chasis int)
 begin
-
+		update pedido_detalle
+        set pedido_id = new_id_pedido, matricula_chasis_id = new_id_chasis
+        where id_pedido_detalle = pedido_detalle_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE alta_insumo()
+CREATE PROCEDURE alta_insumo(in insumo_id int, in descr varchar(45), in precio_ins float)
 begin
-
+		insert into insumo(id_insumo, descripcion, precio)
+				values(insumo_id, descr, precio_ins);
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE baja_insumo()
+CREATE PROCEDURE baja_insumo(in insumo_id int)
 begin
-
+		delete from insumo
+        where id_insumo = insumo_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE modificar_insumo()
+CREATE PROCEDURE modificar_insumo(in insumo_id int, in descr varchar(45), in precio_ins float)
 begin
-
+		update insumo
+        set descripcion = descr, precio = precio_ins
+        where id_insumo = insumo_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE alta_insumo_proveedor()
+CREATE PROCEDURE alta_insumo_proveedor(in ins_prov_id int, in cant int, in id_insumo_i int, in id_proveedor_p int)
 begin
-
+		insert into insumo_proveedor(id_insumo_proveedor, cantidad, insumo_id, id_proveedor_p)
+				values(ins_prov_id, cant, id_insumo_i, id_proveedor_p);
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE baja_insumo_proveedor()
+CREATE PROCEDURE baja_insumo_proveedor(in insumo_proveedor_id int)
 begin
-
+		delete from insumo_proveedor
+        where id_insumo_proveedor = insumo_proveedor_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE modificar_insumo_proveedor()
+CREATE PROCEDURE modificar_insumo_proveedor(in ins_prov_id int, in cant int, in id_insumo_i int, in id_proveedor_p int)
 begin
-
+		update insumo_proveedor
+        set cantidad=cant, insumo_id=id_insumo_i, proveedor_id=id_proveedor_p
+        where id_insumo_proveedor = ins_prov_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE alta_proveedor()
+CREATE PROCEDURE alta_proveedor(in proveedor_id int, in descr varchar(45), in contacto_prov varchar(45))
 begin
-
+		insert into proveedor(id_proveedor, descripcion, contacto)
+				values(proveedor_id, descr, contacto_prov);
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE baja_proveedor()
+CREATE PROCEDURE baja_proveedor(in proveedor_id int)
 begin
-
+		delete from proveedor
+        where id_proveedor = proveedor_id;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE modificar_proveedor()
+CREATE PROCEDURE modificar_proveedor(in proveedor_id int, in descr varchar(45), in contacto_prov varchar(45))
 begin
-
+		update proveedor
+        set descripcion = descr, contacto = contacto_prov
+        where id_proveedor = proveedor_id;
 end;	$$
