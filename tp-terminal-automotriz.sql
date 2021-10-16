@@ -107,8 +107,10 @@ begin
 		set mensaje = "El pedido fue cargado correctamente";
         set resultado = 0;
 	end if;
-end;	$$
+end	$$
+delimiter;
 
+ 
 delimiter $$
 CREATE PROCEDURE baja_pedido (out mensaje varchar(200), out resultado int, in id_pedido_p int) 
 	begin
@@ -126,7 +128,7 @@ CREATE PROCEDURE baja_pedido (out mensaje varchar(200), out resultado int, in id
 delimiter $$
 CREATE PROCEDURE modificar_pedido(out mensaje varchar(200), out resultado int, in id_pedido_p int, in new_fechaentrega datetime, in new_cons_id int)
 begin
-	if(exists(select * from pedido where id_pedido = pedido_id)) THEN
+	if(exists(select * from pedido where id_pedido = pedido_id_p)) THEN
 		set mensaje = "Pedido modificado correctamente";
         set resultado = 0;
 		update pedido 
@@ -190,7 +192,7 @@ end;	$$
 /*Creacion de procedimientos ABM de la tabla INSUMO*/
 
 delimiter $$
-CREATE PROCEDURE alta_insumo(out mensaje varchar(200), out resultado int, in insumo_id int, in descr varchar(45), in precio_ins float)
+CREATE PROCEDURE alta_insumo (out mensaje varchar(200), out resultado int, in insumo_id int, in descr varchar(45), in precio_ins float)
 begin
 	if(exists(select * from insumo where id_insumo = insumo_id)) THEN
 		set mensaje = "El insumo ya existe";
@@ -215,7 +217,9 @@ begin
 		set mensaje = "Insumo no encontrado";
         set resultado = -1;
 	end if;
-end;	$$
+end	$$
+delimiter;
+
 
 delimiter $$
 CREATE PROCEDURE modificar_insumo(out mensaje varchar(200), out resultado int, in insumo_id int, in descr varchar(45), in precio_ins float)
@@ -323,3 +327,4 @@ begin
         set resultado = -1;
 	end if;
 end;	$$
+
