@@ -20,11 +20,13 @@ create table modelo
 
 create table matricula_chasis
 (
-	id_matricula_chasis int primary key,
+	matricula_chasis varchar(6) primary key,
     modelo_id int not null,
     foreign key (modelo_id) references modelo(id_modelo)
 );
 
+drop table matricula_chasis;
+drop table pedido_detalle;
 create table pedido
 (
 	id_pedido int auto_increment primary key not null,
@@ -37,8 +39,8 @@ create table pedido_detalle
 (
 	id_pedido_detalle int auto_increment primary key not null,
     pedido_id int not null,
-    matricula_chasis_id int not null,
-    foreign key (matricula_chasis_id) references matricula_chasis(id_matricula_chasis)
+    matricula varchar(6) not null,
+    foreign key (matricula) references matricula_chasis(matricula_chasis)
 );
 
 create table insumo
@@ -128,7 +130,7 @@ CREATE PROCEDURE baja_pedido (out mensaje varchar(200), out resultado int, in id
 delimiter $$
 CREATE PROCEDURE modificar_pedido(out mensaje varchar(200), out resultado int, in id_pedido_p int, in new_fechaentrega datetime, in new_cons_id int)
 begin
-	if(exists(select * from pedido where id_pedido = pedido_id_p)) THEN
+	if(exists(select * from pedido where id_pedido = id_pedido_p)) THEN
 		set mensaje = "Pedido modificado correctamente";
         set resultado = 0;
 		update pedido 
