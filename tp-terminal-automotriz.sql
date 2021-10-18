@@ -296,7 +296,7 @@ begin
 	else
 		set mensaje = "El insumo_proveedor fue cargado exitosamente";
         set resultado = 0;
-		insert into insumo_proveedor(id_insumo_proveedor, cantidad, insumo_id, id_proveedor_p)
+		insert into insumo_proveedor(id_insumo_proveedor, cantidad, insumo_id, proveedor_id)
 				values(ins_prov_id, cant, id_insumo_i, id_proveedor_p);
 	end if;
 end;	$$

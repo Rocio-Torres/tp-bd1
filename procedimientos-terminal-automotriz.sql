@@ -13,13 +13,13 @@ use terminal_automotriz;
 */
 -- USO DE PATENTES VIEJAS (ABC 123) 
 
-
+-- out mensaje varchar(200), out resultado int, 
+-- in ins_prov_id int, in cant int, in id_insumo_i int, in id_proveedor_p int
 select * from proveedor;
-select * from insumo;
-
-call alta_insumo (@mensaje,@resultado,901,'Luneta trasera',5487.99);
-select @mensaje;
-select @resultado;
+select * from insumo_proveedor;
+select * from linea_montaje;
+select * from modelo;
+select * from estacion_trabajo;
 
 delimiter $$
  CREATE PROCEDURE generar_automovil (in id_pedido_detalle int)
@@ -28,9 +28,6 @@ delimiter $$
  
  
  end; $$
-
-
-
 
 
 -- SUBSTRING(string, start, length)
