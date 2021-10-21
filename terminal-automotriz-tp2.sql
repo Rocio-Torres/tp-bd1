@@ -1,7 +1,6 @@
-
 /* Creacion y uso de la base de datos*/
-create database terminal_automotriz;
-use terminal_automotriz;
+create database terminal_automotriz_tp;
+use terminal_automotriz_tp;
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*Creacion de tablas*/
@@ -18,27 +17,30 @@ create table modelo
     precio int not null
 );
 
-create table matricula_chasis
-(
-	matricula_chasis varchar(6) primary key,
-    modelo_id int not null,
-    foreign key (modelo_id) references modelo(id_modelo)
-);
-
 create table pedido
 (
 	id_pedido int auto_increment primary key not null,
-    fecha_entrega datetime not null,
+    fecha_entrega date not null,
     consesionario_id int not null,
     foreign key (consesionario_id) references consesionario(id_consesionario)
 );
 
+create table automovil
+(
+	numero_chasis varchar(17) primary key,
+    patente varchar(6),
+    fecha_final date,
+    modelo_id int not null,
+    pedido_id int not null,
+    foreign key (modelo_id) references modelo(id_modelo),
+    foreign key (pedido_id) references pedido(id_pedido)
+);
+
 create table pedido_detalle
 (
-	id_pedido_detalle int auto_increment primary key not null,
-    pedido_id int not null,
-    matricula varchar(6) not null,
-    foreign key (matricula) references matricula_chasis(matricula_chasis)
+	pedido_id int primary key,
+    numero_chasis varchar(17) not null,
+    foreign key (numero_chasis) references automovil(numero_chasis)
 );
 
 create table insumo
@@ -84,19 +86,21 @@ create table estacion_trabajo
 
 create table modelo_estacion
 (
-	modelo_id int not null,
-    estacion_trabajo_id int not null,
+	estacion_trabajo_id int not null,
     fecha_entrada datetime not null,
     fecha_salida datetime not null,
-    foreign key (modelo_id) references modelo(id_modelo),
-    foreign key (estacion_trabajo_id) references estacion_trabajo(id_estacion_trabajo)    
+    numero_chasis varchar(17) not null,
+    pedido_id int not null,
+    foreign key (estacion_trabajo_id) references estacion_trabajo(id_estacion_trabajo),
+    foreign key (numero_chasis) references automovil(numero_chasis),
+    foreign key (pedido_id) references pedido(id_pedido)
 );
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*Creacion de procedimientos ABM de la tabla PEDIDO*/
 delimiter $$
 
-CREATE PROCEDURE alta_pedido (out pedido_id int, out mensaje varchar(200), out resultado int, in pedido_fechaEntrega datetime, in pedido_cons_id int)
+CREATE PROCEDURE alta_pedido (out pedido_id int, out mensaje varchar(200), out resultado int, in pedido_fechaEntrega date, in pedido_cons_id int)
 begin
 	if(exists(select * from pedido where id_pedido = pedido_id)) THEN
 		set mensaje = "El pedido ya existe";
@@ -126,7 +130,7 @@ CREATE PROCEDURE baja_pedido (out mensaje varchar(200), out resultado int, in id
     end;	$$
 
 delimiter $$
-CREATE PROCEDURE modificar_pedido(out mensaje varchar(200), out resultado int, in id_pedido_p int, in new_fechaentrega datetime, in new_cons_id int)
+CREATE PROCEDURE modificar_pedido(out mensaje varchar(200), out resultado int, in id_pedido_p int, in new_fechaentrega date, in new_cons_id int)
 begin
 	if(exists(select * from pedido where id_pedido = id_pedido_p)) THEN
 		set mensaje = "Pedido modificado correctamente";
@@ -145,27 +149,27 @@ end;	$$
 /*Creacion de procedimientos ABM de la tabla PEDIDO_DETALLE*/
 
 delimiter $$
-CREATE PROCEDURE alta_pedido_detalle(out mensaje varchar(200), out resultado int, out pedido_detalle_id int, in id_pedido_p int, out id_matricula_chasis_mc int)
+CREATE PROCEDURE alta_pedido_detalle(out mensaje varchar(200), out resultado int, in id_pedido_p int, in chasis varchar(17))
 begin
-	if(exists(select * from pedido_detalle where id_pedido_detalle = pedido_detalle_id)) THEN
+	if(exists(select * from pedido_detalle where pedido_id = id_pedido_p)) THEN
 		set mensaje = "El detalle del pedido ya existe";
         set resultado = -1;
 	else
 		set mensaje = "El detalle del pedido fue cargado exitosamente";
         set resultado = 0;
-		insert into pedido_detalle (pedido_id, matricula_chasis_id)
-				values (id_pedido_p, id_matricula_chasis_mc);
+		insert into pedido_detalle (pedido_id, numero_chasis)
+				values (id_pedido_p, chasis);
 	end if;
 end;	$$
 
 delimiter $$
-CREATE PROCEDURE baja_pedido_detalle(out mensaje varchar(200), out resultado int, in pedido_detalle_id int)
+CREATE PROCEDURE baja_pedido_detalle(out mensaje varchar(200), out resultado int, in id_pedido_p int)
 begin
-	if(exists(select * from pedido_detalle where id_pedido_detalle = pedido_detalle_id)) THEN
-		set mensaje = "Detalle del pedido borrado corrextamente";
+	if(exists(select * from pedido_detalle where pedido_id = id_pedido_p)) THEN
+		set mensaje = "Detalle del pedido borrado correctamente";
         set resultado = 0;
 		delete from pedido_detalle
-        where id_pedido_detalle = pedido_detalle_id;
+        where pedido_id = id_pedido_p;
 	else
 		set mensaje = "Detalle del pedido no encontrado";
         set resultado = -1;
@@ -174,14 +178,14 @@ begin
 end;	$$
 	
 delimiter $$
-CREATE PROCEDURE modificar_pedido_detalle(out mensaje varchar(200), out resultado int, in pedido_detalle_id int, in new_id_pedido int, out new_id_chasis int)
+CREATE PROCEDURE modificar_pedido_detalle(out mensaje varchar(200), out resultado int, in pedido_id int, in new_id_pedido int, out new_chasis varchar(17))
 begin
-	if(exists(select * from pedido_detalle where id_pedido_detalle = pedido_detalle_id)) THEN
+	if(exists(select * from pedido_detalle where pedido_id = id_pedido_p)) THEN
 		set mensaje = "Detalle del pedido modificado correctamente";
         set resultado = 0;
 		update pedido_detalle
-        set pedido_id = new_id_pedido, matricula_chasis_id = new_id_chasis
-        where id_pedido_detalle = pedido_detalle_id;
+        set pedido_id = new_id_pedido, numero_chasis = new_chasis
+        where pedido_id = id_pedido_p;
 	else 
 		set mensaje = "Detalle del pedido no encontrado";
         set mensaje = -1;
@@ -219,7 +223,6 @@ begin
 	end if;
 end	$$
 delimiter;
-
 
 delimiter $$
 CREATE PROCEDURE modificar_insumo(out mensaje varchar(200), out resultado int, in insumo_id int, in descr varchar(45), in precio_ins float)
@@ -327,4 +330,6 @@ begin
         set resultado = -1;
 	end if;
 end;	$$
+
+
 
